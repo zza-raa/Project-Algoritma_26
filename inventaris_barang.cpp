@@ -11,6 +11,7 @@ struct Barang {
     int id, stok;
     string nama;
     double harga;
+    Kategori kategoriBarang;
 };
 
 Barang db[100];
@@ -20,6 +21,7 @@ void kelolaData();
 void pencarianFilter();
 void pengurutan();
 void laporanStatistik();
+int totalStok(Barang db[], int n);
 void penyimpananData();
 
 int main(){
@@ -36,6 +38,7 @@ int main(){
         cout << "Pilih Menu: "; 
         cin >> pilihan;
         cin.ignore();
+        system("cls");
 
         switch (pilihan) {
             case 1: 
@@ -60,5 +63,5 @@ int main(){
                 cout << "Pilihan tidak valid! Silakan coba lagi.\n";
         }
 
-    }
+    } while (pilihan != 0);
 }
