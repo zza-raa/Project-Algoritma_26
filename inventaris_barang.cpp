@@ -77,7 +77,6 @@ int main(){
                     laporanStatistik(); 
                 } 
                 break;
-                pauseProgram();
             case 5:
                 clearScreen();
                 penyimpananData();
@@ -91,22 +90,21 @@ int main(){
         }
 
     } while (pilihan != 0);
+    return 0;
 }
 
 void kelolaData(){};
 
-// Pencarian data
 void pencarianFilter(){
     int pilihan;
-    int cari;
     string target;
     int titktemu = -1;
-    int kiri, kanan, tengah;
-    bool found = false;
+    
     if (jumlah_barang == 0){
-		cout << "Data tidak ditemukan\n";
-		return;
-	}
+        cout << "Data tidak ditemukan / Data masih kosong\n";
+        return;
+    }
+    
     do {
         cout << "\n===== PENCARIAN DATA =====\n"
              << "[1] Cari berdasarkan ID" << endl
@@ -117,21 +115,21 @@ void pencarianFilter(){
         cin >> pilihan;
         cin.ignore();
         system("cls");
-    } while (pilihan != 0);
 
-    switch (pilihan) {
+        switch (pilihan) {
             case 1: 
-                //Menunggu Algoritma sorting dibuat ~nokt
-
-                //cout << "Masukkan ID: "; cin >> cari;
-                //pengurutan();
+                cout << "Fitur pencarian ID menggunakan Binary Search menunggu data disortir terlebih dahulu.\n";
+                system("pause");
+                system("cls");
                 break;
+                
             case 2: 
                 titktemu = -1;
-                cout << "Masukkan Nama: "; getline(cin, target);
+                cout << "Masukkan Nama Barang: "; getline(cin, target);
                 for (int i = 0; i < jumlah_barang; i++) {
                     if (db[i].nama == target) {
                         titktemu = i;
+                        cout << "\n--- DATA DITEMUKAN ---\n";
                         cout << "ID           : " << db[titktemu].id << "\n";
                         cout << "Nama         : " << db[titktemu].nama << "\n";
                         cout << "Harga        : " << db[titktemu].harga << "\n";
@@ -139,22 +137,32 @@ void pencarianFilter(){
                         cout << "ID Kategori  : " << db[titktemu].kategoriBarang.idKategori << "\n";
                         cout << "Nama Kategori: " << db[titktemu].kategoriBarang.namaKategori << "\n";
                         cout << "------------------------------\n";
+                        system("pause");
+                        system("cls");
                         return;
                     }
                 }
-                cout << "Nama: " << target << " tidak ditemukan\n";
+                cout << "Nama Barang: \"" << target << "\" tidak ditemukan\n";
+                system("pause");
+                system("cls");
                 break;
+                
             case 3: 
+            {
                 int hargamax = -1;
                 int hargamin = -1;
                 int tempharga;
                 cout << "Masukkan Rentang Harga Terendah : "; cin >> hargamin;
                 cout << "Masukkan Rentang Harga Tertinggi: "; cin >> hargamax;
+                
                 if(hargamax < hargamin) {
                     tempharga = hargamax;
                     hargamax = hargamin;
                     hargamin = tempharga;
                 }
+                
+                bool adaBarang = false;
+                cout << "\n--- HASIL PENCARIAN RENTANG HARGA ---\n";
                 for (int i = 0; i < jumlah_barang; i++) {
                     if (db[i].harga >= hargamin && db[i].harga <= hargamax) {
                         titktemu = i;
@@ -165,24 +173,141 @@ void pencarianFilter(){
                         cout << "ID Kategori  : " << db[titktemu].kategoriBarang.idKategori << "\n";
                         cout << "Nama Kategori: " << db[titktemu].kategoriBarang.namaKategori << "\n";
                         cout << "------------------------------\n";
-                        return;
+                        adaBarang = true;
                     }
                 }
-                cout << "Jangkauan tidak ditemukan\n";
-                break;
-            case 0: 
-                cout << "Keluar dari program...\n"; 
+                if (!adaBarang) {
+                    cout << "Tidak ada barang dalam rentang harga tersebut.\n";
+                }
                 system("pause");
                 system("cls");
                 break;
+            }
+            
+            case 0: 
+                cout << "Keluar dari menu pencarian...\n"; 
+                break;
+                
             default: 
                 cout << "Pilihan tidak valid! Silakan coba lagi.\n";
+                system("pause");
+                system("cls");
         }
+    } while (pilihan != 0);
 }
 
-void pengurutan(){};
+void tukarData(Barang *a, Barang *b) {
+    Barang temp = *a;
+    *a = *b;
+    *b = temp;
+}
 
-// Laporan dan Statistik
+// 1. Urut Harga Naik (Ascending) - Menggunakan Bubble Sort & Pointer
+void urutHargaAsc(Barang *ptr, int n) {
+    for (int i = 0; i < n - 1; i++) {
+        for (int j = 0; j < n - i - 1; j++) {
+            if ((ptr + j)->harga > (ptr + j + 1)->harga) {
+                tukarData((ptr + j), (ptr + j + 1));
+            }
+        }
+    }
+    cout << "\n[Sukses] Data berhasil diurutkan berdasarkan harga termurah!\n";
+}
+
+// 2. Urut Harga Turun (Descending) - Menggunakan Selection Sort & Pointer
+void urutHargaDesc(Barang *ptr, int n) {
+    for (int i = 0; i < n - 1; i++) {
+        int idxMaks = i;
+        for (int j = i + 1; j < n; j++) {
+            if ((ptr + j)->harga > (ptr + idxMaks)->harga) {
+                idxMaks = j;
+            }
+        }
+        tukarData((ptr + i), (ptr + idxMaks));
+    }
+    cout << "\n[Sukses] Data berhasil diurutkan berdasarkan harga termahal!\n";
+}
+
+// 3. Urut Nama A-Z (Ascending) - Menggunakan Bubble Sort & Pointer
+void urutNamaAsc(Barang *ptr, int n) {
+    for (int i = 0; i < n - 1; i++) {
+        for (int j = 0; j < n - i - 1; j++) {
+            if ((ptr + j)->nama > (ptr + j + 1)->nama) {
+                tukarData((ptr + j), (ptr + j + 1));
+            }
+        }
+    }
+    cout << "\n[Sukses] Data berhasil diurutkan berdasarkan Nama A-Z!\n";
+}
+
+// 4. Urut Stok Terbanyak (Descending) - Menggunakan Selection Sort & Pointer
+void urutStokDesc(Barang *ptr, int n) {
+    for (int i = 0; i < n - 1; i++) {
+        int idxMaks = i;
+        for (int j = i + 1; j < n; j++) {
+            if ((ptr + j)->stok > (ptr + idxMaks)->stok) {
+                idxMaks = j;
+            }
+        }
+        tukarData((ptr + i), (ptr + idxMaks));
+    }
+    cout << "\n[Sukses] Data berhasil diurutkan berdasarkan Stok Terbanyak!\n";
+}
+
+// Fungsi Utama Menu Pengurutan
+void pengurutan() {
+    if (jumlah_barang <= 0) {
+        cout << "Data barang masih kosong!" << endl
+             << "Silakan isi data terlebih dahulu di menu Kelola Data atau Baca dari File." << endl;
+        return;
+    }
+
+    int pilih;
+    Barang *ptr = db; // Inisialisasi pointer ke array global db
+
+    do {
+        cout << "===== MENU PENGURUTAN DATA BARANG =====" << endl;
+        cout << "[1] Urut Harga Naik (Termurah)" << endl;
+        cout << "[2] Urut Harga Turun (Termahal)" << endl;
+        cout << "[3] Urut Nama A-Z" << endl;
+        cout << "[4] Urut Stok Terbanyak" << endl;
+        cout << "[0] Kembali ke Menu Utama" << endl;
+        cout << "Pilih Menu: "; cin >> pilih;
+        cin.ignore();
+        system("cls");
+
+        switch(pilih) {
+            case 1:
+                urutHargaAsc(ptr, jumlah_barang);
+                system("pause");
+                system("cls");
+                break;
+            case 2:
+                urutHargaDesc(ptr, jumlah_barang);
+                system("pause");
+                system("cls");
+                break;
+            case 3:
+                urutNamaAsc(ptr, jumlah_barang);
+                system("pause");
+                system("cls");
+                break;
+            case 4:
+                urutStokDesc(ptr, jumlah_barang);
+                system("pause");
+                system("cls");
+                break;
+            case 0:
+                cout << "Kembali ke Menu Utama...." << endl << endl;
+                break;
+            default:
+                cout << "Pilihan tidak valid! Silakan coba lagi." << endl;
+                system("pause");
+                system("cls");
+        }
+    } while (pilih != 0);
+}
+
 void laporanStatistik(){
     int pilih;
 
@@ -206,12 +331,10 @@ void laporanStatistik(){
             case 2:
             {
                 double totalNilai = 0;
-
                 for (int i = 0; i < jumlah_barang; i++){
                     totalNilai += (db[i].harga * db[i].stok);
                 }
                 cout << "Total nilai inventaris Anda saat ini adalah [" << totalNilai << "]" << endl;
-
                 system("pause");
                 system("cls");
                 break;
@@ -224,7 +347,6 @@ void laporanStatistik(){
                         indeksTerbanyak = i;
                     }
                 }
-
                 cout << "----- Barang dengan Stok Terbanyak -----" << endl
                      << "Stok Barang    : " << db[indeksTerbanyak].stok << endl
                      << "| ID                   : " << db[indeksTerbanyak].id << endl
@@ -232,7 +354,6 @@ void laporanStatistik(){
                      << "| Harga Barang         : " << db[indeksTerbanyak].harga << endl
                      << "| ID Kategori Barang   : " << db[indeksTerbanyak].kategoriBarang.idKategori << endl
                      << "| Nama Kategori Barang : " << db[indeksTerbanyak].kategoriBarang.namaKategori << endl;
-
                 system("pause");
                 system("cls");
                 break;
@@ -245,7 +366,6 @@ void laporanStatistik(){
                         indeksTermahal = i;
                     }
                 }
-
                 cout << "----- Barang dengan Harga Tertinggi -----" << endl
                      << "Harga Barang   : " << db[indeksTermahal].harga << endl
                      << "| ID                   : " << db[indeksTermahal].id << endl
@@ -253,20 +373,17 @@ void laporanStatistik(){
                      << "| Stok Barang          : " << db[indeksTermahal].stok << endl
                      << "| ID Kategori Barang   : " << db[indeksTermahal].kategoriBarang.idKategori << endl
                      << "| Nama Kategori Barang : " << db[indeksTermahal].kategoriBarang.namaKategori << endl;
-                
                 system("pause");
                 system("cls");
                 break;
             }
             case 0:
                 cout << "Kembali ke Menu Utama...." << endl << endl;
-
                 system("pause");
                 system("cls");
                 return;
             default:
                 cout << "Pilihan tidak valid! Silakan coba lagi." << endl;
-
                 system("pause");
                 system("cls");
         }
@@ -285,9 +402,6 @@ void penyimpananData() {
     int pilih;
     string fileUtama = "inventaris.txt";
     string fileBackup = "backup_inventaris.txt";
-
-    // Membuat pointer yang menunjuk ke array global 'db'
-    // Ini untuk memenuhi materi "Pointer" dalam pembagian tugas
     Barang *ptr = db;
 
     do {
@@ -303,19 +417,14 @@ void penyimpananData() {
 
         switch(pilih) {
             case 1: {
-                // 1. SIMPAN KE FILE
                 ofstream outFile(fileUtama);
                 if (!outFile) {
-                    cout << "]\nERROR: Gagal membuka file untuk menyimpan data!" << endl;
+                    cout << "\nERROR: Gagal membuka file untuk menyimpan data!" << endl;
                 } else {
                     if (jumlah_barang == 0) {
                         cout << "\nPeringatan:\nData di program kosong. File akan disimpan sebagai data kosong." << endl;
                     }
-                    
-                    // Baris pertama file diisi oleh jumlah barang saat ini
                     outFile << jumlah_barang << endl;
-
-                    // Menulis data barang ke file menggunakan operasi POINTER
                     for (int i = 0; i < jumlah_barang; i++) {
                         outFile << (ptr + i)->id << endl;
                         outFile << (ptr + i)->nama << endl;
@@ -331,27 +440,21 @@ void penyimpananData() {
                 break;
             }
             case 2: {
-                // 2. BACA DARI FILE
                 ifstream inFile(fileUtama);
                 if (!inFile) {
                     cout << "ERROR: File '" << fileUtama << "' tidak ditemukan atau belum pernah dibuat!" << endl;
                 } else {
-                    // Membaca baris pertama untuk mengetahui jumlah data
                     inFile >> jumlah_barang;
-                    inFile.ignore(); // Abaikan sisa newline setelah membaca integer
+                    inFile.ignore(); 
 
-                    // Membaca seluruh data barang dari file menggunakan operasi POINTER
                     for (int i = 0; i < jumlah_barang; i++) {
                         inFile >> (ptr + i)->id;
-                        inFile.ignore(); // Abaikan newline setelah ID
-                        
+                        inFile.ignore(); 
                         getline(inFile, (ptr + i)->nama);
-                        
                         inFile >> (ptr + i)->stok;
                         inFile >> (ptr + i)->harga;
                         inFile >> (ptr + i)->kategoriBarang.idKategori;
-                        inFile.ignore(); // Abaikan newline sebelum membaca string kategori
-                        
+                        inFile.ignore(); 
                         getline(inFile, (ptr + i)->kategoriBarang.namaKategori);
                     }
                     inFile.close();
@@ -361,12 +464,10 @@ void penyimpananData() {
                 break;
             }
             case 3: {
-                // 3. BACKUP DATA
                 ofstream backupFile(fileBackup);
                 if (!backupFile) {
                     cout << "ERROR: Gagal membuat file backup!" << endl;
                 } else {
-                    // Proses backup sama seperti simpan file, menggunakan POINTER
                     backupFile << jumlah_barang << endl;
                     for (int i = 0; i < jumlah_barang; i++) {
                         backupFile << (ptr + i)->id << endl;
@@ -383,17 +484,15 @@ void penyimpananData() {
                 break;
             }
             case 4: {
-                // 4. HAPUS DATA DI FILE (Sesuai catatan tambahanmu: "user bisa hapus ke file")
                 char konfirmasi;
                 cout << "\nApakah Anda yakin ingin menghapus seluruh isi data pada file '" << fileUtama << "'? (y/n) : ";
                 cin >> konfirmasi;
                 cin.ignore();
                 
                 if (konfirmasi == 'y' || konfirmasi == 'Y') {
-                    // Membuka file dengan mode ios::trunc akan menghapus/mengosongkan seluruh isinya
                     ofstream outFile(fileUtama, ios::trunc); 
                     if (outFile) {
-                        outFile << 0 << endl; // Tulis isi bahwa data sekarang ada 0
+                        outFile << 0 << endl; 
                         outFile.close();
                         cout << "Berhasil! Seluruh isi file '" << fileUtama << "' telah dikosongkan." << endl;
                     } else {
@@ -406,7 +505,6 @@ void penyimpananData() {
                 break;
             }
             case 0:
-                pauseProgram();
                 return;
                 
             default:
