@@ -24,33 +24,50 @@ void laporanStatistik();
 int totalStok(Barang db[], int n);
 void penyimpananData();
 
+void clearScreen() {
+    system("cls");
+}
+
+void pauseProgram() {
+    cout << "\nTekan Enter untuk kembali ke menu utama ... ";
+    cin.get();
+}
+
 int main(){
     int pilihan;
 
     do {
-        cout << "\n===== SISTEM INVENTARIS BARANG =====\n"
+        clearScreen();
+        cout << "===== SISTEM INVENTARIS BARANG =====\n"
              << "[1] Kelola Data Barang" << endl
              << "[2] Pencarian dan Filter Barang" << endl
              << "[3] Pengurutan Data Barang" << endl
              << "[4] Laporan dan Statistik" << endl
              << "[5] Penyimpanan Data" << endl
              << "[0] Keluar" << endl;
-        cout << "Pilih Menu: "; 
+        cout << "Pilih Menu : "; 
         cin >> pilihan;
         cin.ignore();
         system("cls");
 
         switch (pilihan) {
             case 1: 
+                clearScreen();
                 kelolaData(); 
+                pauseProgram();
                 break;
             case 2: 
-                pencarianFilter(); 
+                clearScreen();
+                pencarianFilter();
+                pauseProgram();
                 break;
             case 3: 
-                pengurutan(); 
+                clearScreen();
+                pengurutan();
+                pauseProgram();
                 break;
             case 4: 
+                clearScreen();
                 if (jumlah_barang <= 0){
                     cout << "Data barang masih kosong!" << endl
                          << "Kembali ke Menu Utama..." << endl << endl;
@@ -60,14 +77,14 @@ int main(){
                     laporanStatistik(); 
                 } 
                 break;
+                pauseProgram();
             case 5:
+                clearScreen();
                 penyimpananData();
                 break;
             case 0: 
-                cout << "Keluar dari program...\n"; 
-
+                cout << "Keluar dari program...\n\n"; 
                 system("pause");
-                system("cls");
                 break;
             default: 
                 cout << "Pilihan tidak valid! Silakan coba lagi.\n";
@@ -75,6 +92,10 @@ int main(){
 
     } while (pilihan != 0);
 }
+
+void kelolaData(){};
+void pencarianFilter(){};
+void pengurutan(){};
 
 // Laporan dan Statistik
 void laporanStatistik(){
@@ -94,7 +115,6 @@ void laporanStatistik(){
         switch(pilih){
             case 1:
                 cout << "Total seluruh stok barang yang tercatat adalah [" << totalStok(db, jumlah_barang) << "]." << endl;
-
                 system("pause");
                 system("cls");
                 break;
@@ -174,4 +194,139 @@ int totalStok(Barang db[], int n){
     } else {
         return db[n-1].stok + totalStok(db, n-1);
     }
+}
+
+void penyimpananData() {
+    int pilih;
+    string fileUtama = "inventaris.txt";
+    string fileBackup = "backup_inventaris.txt";
+
+    // Membuat pointer yang menunjuk ke array global 'db'
+    // Ini untuk memenuhi materi "Pointer" dalam pembagian tugas
+    Barang *ptr = db;
+
+    do {
+        clearScreen();
+        cout << "===== MENU PENYIMPANAN DATA =====" << endl
+             << "[1] Simpan ke File" << endl
+             << "[2] Baca dari File" << endl
+             << "[3] Backup Data (Salinan)" << endl
+             << "[4] Kosongkan Data File (Hapus Semua)" << endl
+             << "[0] Kembali ke Menu Utama" << endl;
+        cout << "Pilih Menu : "; cin >> pilih;
+        cin.ignore();
+
+        switch(pilih) {
+            case 1: {
+                // 1. SIMPAN KE FILE
+                ofstream outFile(fileUtama);
+                if (!outFile) {
+                    cout << "]\nERROR: Gagal membuka file untuk menyimpan data!" << endl;
+                } else {
+                    if (jumlah_barang == 0) {
+                        cout << "\nPeringatan:\nData di program kosong. File akan disimpan sebagai data kosong." << endl;
+                    }
+                    
+                    // Baris pertama file diisi oleh jumlah barang saat ini
+                    outFile << jumlah_barang << endl;
+
+                    // Menulis data barang ke file menggunakan operasi POINTER
+                    for (int i = 0; i < jumlah_barang; i++) {
+                        outFile << (ptr + i)->id << endl;
+                        outFile << (ptr + i)->nama << endl;
+                        outFile << (ptr + i)->stok << endl;
+                        outFile << (ptr + i)->harga << endl;
+                        outFile << (ptr + i)->kategoriBarang.idKategori << endl;
+                        outFile << (ptr + i)->kategoriBarang.namaKategori << endl;
+                    }
+                    outFile.close();
+                    cout << "Ada " << jumlah_barang << " data barang telah disimpan ke '" << fileUtama << "'." << endl << endl;
+                }
+                pauseProgram();
+                break;
+            }
+            case 2: {
+                // 2. BACA DARI FILE
+                ifstream inFile(fileUtama);
+                if (!inFile) {
+                    cout << "ERROR: File '" << fileUtama << "' tidak ditemukan atau belum pernah dibuat!" << endl;
+                } else {
+                    // Membaca baris pertama untuk mengetahui jumlah data
+                    inFile >> jumlah_barang;
+                    inFile.ignore(); // Abaikan sisa newline setelah membaca integer
+
+                    // Membaca seluruh data barang dari file menggunakan operasi POINTER
+                    for (int i = 0; i < jumlah_barang; i++) {
+                        inFile >> (ptr + i)->id;
+                        inFile.ignore(); // Abaikan newline setelah ID
+                        
+                        getline(inFile, (ptr + i)->nama);
+                        
+                        inFile >> (ptr + i)->stok;
+                        inFile >> (ptr + i)->harga;
+                        inFile >> (ptr + i)->kategoriBarang.idKategori;
+                        inFile.ignore(); // Abaikan newline sebelum membaca string kategori
+                        
+                        getline(inFile, (ptr + i)->kategoriBarang.namaKategori);
+                    }
+                    inFile.close();
+                    cout << "\nBerhasil! Memuat " << jumlah_barang << " data dari '" << fileUtama << "' ke dalam sistem." << endl;
+                }
+                pauseProgram();
+                break;
+            }
+            case 3: {
+                // 3. BACKUP DATA
+                ofstream backupFile(fileBackup);
+                if (!backupFile) {
+                    cout << "ERROR: Gagal membuat file backup!" << endl;
+                } else {
+                    // Proses backup sama seperti simpan file, menggunakan POINTER
+                    backupFile << jumlah_barang << endl;
+                    for (int i = 0; i < jumlah_barang; i++) {
+                        backupFile << (ptr + i)->id << endl;
+                        backupFile << (ptr + i)->nama << endl;
+                        backupFile << (ptr + i)->stok << endl;
+                        backupFile << (ptr + i)->harga << endl;
+                        backupFile << (ptr + i)->kategoriBarang.idKategori << endl;
+                        backupFile << (ptr + i)->kategoriBarang.namaKategori << endl;
+                    }
+                    backupFile.close();
+                    cout << "\nBerhasil! Salinan data (backup) telah dibuat di '" << fileBackup << "'." << endl;
+                }
+                pauseProgram();
+                break;
+            }
+            case 4: {
+                // 4. HAPUS DATA DI FILE (Sesuai catatan tambahanmu: "user bisa hapus ke file")
+                char konfirmasi;
+                cout << "\nApakah Anda yakin ingin menghapus seluruh isi data pada file '" << fileUtama << "'? (y/n) : ";
+                cin >> konfirmasi;
+                cin.ignore();
+                
+                if (konfirmasi == 'y' || konfirmasi == 'Y') {
+                    // Membuka file dengan mode ios::trunc akan menghapus/mengosongkan seluruh isinya
+                    ofstream outFile(fileUtama, ios::trunc); 
+                    if (outFile) {
+                        outFile << 0 << endl; // Tulis isi bahwa data sekarang ada 0
+                        outFile.close();
+                        cout << "Berhasil! Seluruh isi file '" << fileUtama << "' telah dikosongkan." << endl;
+                    } else {
+                        cout << "ERROR: Gagal membuka file!" << endl;
+                    }
+                } else {
+                    cout << "Aksi pembatalan berhasil dilakukan." << endl;
+                }
+                pauseProgram();
+                break;
+            }
+            case 0:
+                pauseProgram();
+                return;
+                
+            default:
+                cout << "Pilihan tidak valid! Silakan coba lagi." << endl;
+                pauseProgram();
+        }
+    } while (pilih != 0);
 }
