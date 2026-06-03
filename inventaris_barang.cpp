@@ -94,7 +94,92 @@ int main(){
 }
 
 void kelolaData(){};
-void pencarianFilter(){};
+
+// Pencarian data
+void pencarianFilter(){
+    int pilihan;
+    int cari;
+    string target;
+    int titktemu = -1;
+    int kiri, kanan, tengah;
+    bool found = false;
+    if (jumlah_barang == 0){
+		cout << "Data tidak ditemukan\n";
+		return;
+	}
+    do {
+        cout << "\n===== PENCARIAN DATA =====\n"
+             << "[1] Cari berdasarkan ID" << endl
+             << "[2] Cari berdasarkan nama" << endl
+             << "[3] Cari berdasarkan rentang harga" << endl
+             << "[0] Keluar" << endl;
+        cout << "Pilih Menu: "; 
+        cin >> pilihan;
+        cin.ignore();
+        system("cls");
+    } while (pilihan != 0);
+
+    switch (pilihan) {
+            case 1: 
+                //Menunggu Algoritma sorting dibuat ~nokt
+
+                //cout << "Masukkan ID: "; cin >> cari;
+                //pengurutan();
+                break;
+            case 2: 
+                titktemu = -1;
+                cout << "Masukkan Nama: "; getline(cin, target);
+                for (int i = 0; i < jumlah_barang; i++) {
+                    if (db[i].nama == target) {
+                        titktemu = i;
+                        cout << "ID           : " << db[titktemu].id << "\n";
+                        cout << "Nama         : " << db[titktemu].nama << "\n";
+                        cout << "Harga        : " << db[titktemu].harga << "\n";
+                        cout << "Stok Barang  : " << db[titktemu].stok << "\n";
+                        cout << "ID Kategori  : " << db[titktemu].kategoriBarang.idKategori << "\n";
+                        cout << "Nama Kategori: " << db[titktemu].kategoriBarang.namaKategori << "\n";
+                        cout << "------------------------------\n";
+                        return;
+                    }
+                }
+                cout << "Nama: " << target << " tidak ditemukan\n";
+                break;
+            case 3: 
+                int hargamax = -1;
+                int hargamin = -1;
+                int tempharga;
+                cout << "Masukkan Rentang Harga Terendah : "; cin >> hargamin;
+                cout << "Masukkan Rentang Harga Tertinggi: "; cin >> hargamax;
+                if(hargamax < hargamin) {
+                    tempharga = hargamax;
+                    hargamax = hargamin;
+                    hargamin = tempharga;
+                }
+                for (int i = 0; i < jumlah_barang; i++) {
+                    if (db[i].harga >= hargamin && db[i].harga <= hargamax) {
+                        titktemu = i;
+                        cout << "ID           : " << db[titktemu].id << "\n";
+                        cout << "Nama         : " << db[titktemu].nama << "\n";
+                        cout << "Harga        : " << db[titktemu].harga << "\n";
+                        cout << "Stok Barang  : " << db[titktemu].stok << "\n";
+                        cout << "ID Kategori  : " << db[titktemu].kategoriBarang.idKategori << "\n";
+                        cout << "Nama Kategori: " << db[titktemu].kategoriBarang.namaKategori << "\n";
+                        cout << "------------------------------\n";
+                        return;
+                    }
+                }
+                cout << "Jangkauan tidak ditemukan\n";
+                break;
+            case 0: 
+                cout << "Keluar dari program...\n"; 
+                system("pause");
+                system("cls");
+                break;
+            default: 
+                cout << "Pilihan tidak valid! Silakan coba lagi.\n";
+        }
+}
+
 void pengurutan(){};
 
 // Laporan dan Statistik
